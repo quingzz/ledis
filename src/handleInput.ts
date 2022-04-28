@@ -78,7 +78,7 @@ export class HandleInput{
                 case "sinter":
                     return this.sInter(input_tokens)
                 case "keys":
-                    return this.keys()
+                    return this.keys(input_tokens)
                 case "del":
                     return this.delKeys(input_tokens)
                 case "expire":
@@ -86,9 +86,9 @@ export class HandleInput{
                 case "ttl":
                     return this.ttl(input_tokens)
                 case "save":
-                    return this.save()
+                    return this.save(input_tokens)
                 case "restore":
-                    return this.restore()
+                    return this.restore(input_tokens)
                 default:
                     throw `Command ${input_tokens[0]} not found`;
             }
@@ -186,7 +186,7 @@ export class HandleInput{
         }
         this.save_file();
 
-        return `Values removed successfully${ not_removed.length > 0 && '. The following value does not exist: ' + not_removed}`
+        return `Values removed successfully ${(not_removed.length > 0) ? ('. The following value does not exist: ' + not_removed):''}`
     }
 
     // return an array of all members of a set
@@ -236,7 +236,11 @@ export class HandleInput{
     }
 
     // list all keys
-    keys(){
+    keys(input_tokens){
+        if(input_tokens.length!=1){
+            throw "Command does not have input parameters. Expected format is 'KEYS'";
+        }
+
         let key_list = []
         for(const [key, val] of Object.entries(this.string_map)){
             key_list.push(key);
@@ -323,7 +327,16 @@ export class HandleInput{
         // loop through list of keys, check if expire time is available and decrease counter by 1
         // if expire is 0 -> delete key
 
-        for (const key of this.keys()) {
+        let key_list = []
+        for(const [key, val] of Object.entries(this.string_map)){
+            key_list.push(key);
+        }
+
+        for(const [key, val] of Object.entries(this.set_map)){
+            key_list.push(key);
+        }
+
+        for (const key of key_list) {
             if(this.string_map[key] && this.string_map[key]["expire"] > 0){
                 this.string_map[key]["expire"]-=1
 
@@ -343,7 +356,11 @@ export class HandleInput{
     }
 
     // save snapshot
-    save(){
+    save(input_tokens){
+        if(input_tokens.length!=1){
+            throw "Command does not have input parameters. Expected format is 'EXPIRE'";
+        }
+
         let list_map = {}
         for(const [key, val] of Object.entries(this.set_map)){
             if(val["value"] instanceof Set){
@@ -364,7 +381,11 @@ export class HandleInput{
     }
 
     // restore from last snapshot
-    restore(){
+    restore(input_tokens){
+        if(input_tokens.length!=1){
+            throw "Command does not have input parameters. Expected format is 'RESTORE'";
+        }
+
         if(localStorage.getItem('snapshot')){
             let data = JSON.parse(localStorage.getItem('snapshot'))
             // data previously saved on localstorage
