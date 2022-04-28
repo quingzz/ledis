@@ -227,7 +227,8 @@ export class HandleInput{
 
         let intersect_list = [];
         for (const [key, val] of val_count.entries()) {
-            if( parseInt(val) == Object.keys(this.set_map).length){
+            // if the time the values appear = number of set being checked -> intersection of sets
+            if( parseInt(val) == input_tokens.slice(1).length){
                 intersect_list.push(key);
             }
         } 
