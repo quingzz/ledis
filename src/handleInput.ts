@@ -61,7 +61,7 @@ export class HandleInput{
     // inputProcessing ->  get a string, split string to token and call correct method 
     inputProcessing(input){
         input = input.trim().toLowerCase();
-        let input_tokens = input.split(" ");
+        let input_tokens = input.split(/\s+/);
 
         if(input_tokens.length >= 1){
             switch(input_tokens[0]){
